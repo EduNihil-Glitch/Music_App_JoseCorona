@@ -21,6 +21,8 @@ class HomeActivity : AppCompatActivity() {
 
     private lateinit var tvResultado : TextView
     private lateinit var contenedorIndie : LinearLayout
+    private lateinit var contenedorPop : LinearLayout
+    private lateinit var contenedorDaftPunk : LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,19 +31,18 @@ class HomeActivity : AppCompatActivity() {
 
         tvResultado = findViewById(R.id.tvResultado)
         contenedorIndie = findViewById(R.id.contenedorIndie)
-
-
-        obtenerAlbum()
+        contenedorPop = findViewById(R.id.contenedorPop)
+        contenedorDaftPunk = findViewById(R.id.contenedorDaftPunk)
 
         //METODO PARA OBTENER LA RESPUESTA DEL API
-
-
-
+        obtenerAlbum("indie", contenedorIndie)
+        obtenerAlbum("pop", contenedorPop)
+        obtenerAlbum("daft punk", contenedorDaftPunk)
     }
-    fun obtenerAlbum(){
+    fun obtenerAlbum(genero : String, contenedor: LinearLayout){
         RetrofitClient.api.obtenerAlbumGenero(
 
-            genero = "edm",
+            genero = genero,
             pais = "MX",
             media = "music",
             entidad = "album",
@@ -57,7 +58,7 @@ class HomeActivity : AppCompatActivity() {
 
                 if(albumes.isNotEmpty()){
 
-                    mostrarAlbumes(albumes)
+                    mostrarAlbumes(albumes,contenedor)
 
                 } else {
                     Toast.makeText(this@HomeActivity, "No hay resultados", Toast.LENGTH_SHORT).show()
@@ -74,10 +75,10 @@ class HomeActivity : AppCompatActivity() {
     }
 
     //Metodo para mostrar una lista de album
-    private fun mostrarAlbumes( albumes : List<Album> ){
+    private fun mostrarAlbumes( albumes : List<Album>, contenedor : LinearLayout ){
 
         //eliminar los elementos duplicados
-        contenedorIndie.removeAllViews()
+        contenedor.removeAllViews()
 
         //Ciclo que recorre los resultados del album
         for(album in albumes){
@@ -85,7 +86,7 @@ class HomeActivity : AppCompatActivity() {
             //Crear variable que haga uso de las tarjetas (item_album)
             val vistaAlbum = layoutInflater.inflate(
                 R.layout.item_album,
-                contenedorIndie,
+                contenedor,
                 false
             )
 
@@ -101,7 +102,7 @@ class HomeActivity : AppCompatActivity() {
                 .load(album.obtenerImagenGrande())
                 .into(imgPortada)
 
-            contenedorIndie.addView(vistaAlbum)
+            contenedor.addView(vistaAlbum)
 
         }
 
