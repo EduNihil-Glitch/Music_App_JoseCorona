@@ -5,13 +5,17 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
+    android:padding="5dp"
     android:background="#101818"
     tools:context=".HomeActivity">
 
     <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -25,9 +29,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="15dp"
                 android:layout_marginTop="10dp"
-                android:textColor="@color/white"
                 android:text="Cargando"
-                android:textSize="15sp"/>
+                android:textColor="@color/white"
+                android:textSize="15sp" />
 
 
             <!-- TÍTULO DEL GÉNERO / INICIO DE SECCION -->
@@ -40,7 +44,7 @@
                 android:text="Indie"
                 android:textColor="@color/white"
                 android:textSize="25sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
 
             <!-- SCROLLVIEW DEL GÉNERO -->
             <HorizontalScrollView
@@ -58,7 +62,7 @@
                     android:id="@+id/contenedorIndie"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"/>
+                    android:orientation="horizontal" />
 
             </HorizontalScrollView>
 
@@ -72,7 +76,7 @@
                 android:text="KPop"
                 android:textColor="@color/white"
                 android:textSize="25sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
 
             <!-- SCROLLVIEW DEL GÉNERO -->
             <HorizontalScrollView
@@ -90,7 +94,7 @@
                     android:id="@+id/contenedorPop"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"/>
+                    android:orientation="horizontal" />
 
             </HorizontalScrollView>
 
@@ -104,7 +108,7 @@
                 android:text="DaftPunk"
                 android:textColor="@color/white"
                 android:textSize="25sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
 
             <!-- SCROLLVIEW DEL GÉNERO -->
             <HorizontalScrollView
@@ -122,12 +126,25 @@
                     android:id="@+id/contenedorDaftPunk"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"/>
+                    android:orientation="horizontal" />
 
             </HorizontalScrollView>
 
         </LinearLayout>
 
     </ScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#101818"
+        app:itemIconTint="@color/white"
+        app:itemTextColor="@color/white"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/menu_bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
