@@ -18,6 +18,7 @@ class DetailsActivity : AppCompatActivity() {
     private lateinit var tvAlbumDetalle : TextView
     private lateinit var btnFavorito : ImageButton
 
+    private lateinit var dbHelper: DatabaseHelper
     private var albumFavorito = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +32,8 @@ class DetailsActivity : AppCompatActivity() {
         tvAlbumDetalle = findViewById(R.id.tvAlbumDetalle)
         btnFavorito = findViewById(R.id.btnFavorito)
 
+        dbHelper = DatabaseHelper(this)
+
         mostrarInformacionAlbum()
 
     }
@@ -38,11 +41,11 @@ class DetailsActivity : AppCompatActivity() {
     //METODO PARA OBTENER LA INFORMACIÓN QUE VIENE DEL API
     private fun mostrarInformacionAlbum(){
         val idAlbum = intent.getLongExtra("ID_ALBUM",1)
-        val nombreAlbum = intent.getStringExtra("NOMBRE_ALBUM")
-        val artistaAlbum = intent.getStringExtra("ARTISTA_ALBUM")
-        val generoAlbum = intent.getStringExtra("GENERO_ALBUM")
+        val nombreAlbum = intent.getStringExtra("NOMBRE_ALBUM")?:"Album desconocido"
+        val artistaAlbum = intent.getStringExtra("ARTISTA_ALBUM")?:"Artista desconocido"
+        val generoAlbum = intent.getStringExtra("GENERO_ALBUM")?:"Sin genero"
         val cancionesAlbum = intent.getIntExtra("CANCIONES_ALBUM",1)
-        val imagenAlbum = intent.getStringExtra("IMAGEN_ALBUM")
+        val imagenAlbum = intent.getStringExtra("IMAGEN_ALBUM")?:""
 
         tvNombreAlbumDetalle.text = nombreAlbum
         tvArtistaAlbumDetalle.text = artistaAlbum
@@ -53,18 +56,51 @@ class DetailsActivity : AppCompatActivity() {
             .centerCrop()
             .into(imgPortadaDetalle)
 
-        btnFavorito.setOnClickListener {
-            albumFavorito = !albumFavorito
-
-            if(albumFavorito){
-                btnFavorito.setImageResource(R.drawable.favorito)
-                Toast.makeText(this, "Album $nombreAlbum agregado a favoritos", Toast.LENGTH_SHORT).show()
-
-            } else {
-                btnFavorito.setImageResource(R.drawable.no_favorito)
-                Toast.makeText(this, "Album $nombreAlbum eliminado de favoritos", Toast.LENGTH_SHORT).show()
-            }
+        //Verificar que el album se encuentre como favorito
+        if (idAlbum != -1L){
+            dbHelper.existeAlbumFavorito(idAlbum)
         }
 
+        albumFavorito = dbHelper.existeAlbumFavorito(idAlbum)
+        actualizarIcono()
+
+        btnFavorito.setOnClickListener {
+            //albumFavorito = !albumFavorito
+
+            if(albumFavorito){
+                val eliminado = dbHelper.eliminarAlbumFavorito(idAlbum)
+                if (eliminado){
+                    albumFavorito = !albumFavorito
+                    Toast.makeText(this, "Album $nombreAlbum eliminado de favoritos", Toast.LENGTH_SHORT).show()
+                }
+
+
+            } else {
+                val guardado = dbHelper.guardarAlbumFavorito(
+                    idAlbum = idAlbum,
+                    nombreAlbum = nombreAlbum,
+                    artista = artistaAlbum,
+                    genero = generoAlbum,
+                    canciones = cancionesAlbum,
+                    imagen = imagenAlbum
+                )
+                if(guardado){
+                    albumFavorito = !albumFavorito
+                    Toast.makeText(this, "Album $nombreAlbum agregado a favoritos", Toast.LENGTH_SHORT).show()
+                }
+
+            }
+            actualizarIcono()
+        }
+
+
     }
+    private fun actualizarIcono(){
+        if(albumFavorito){
+            btnFavorito.setImageResource(R.drawable.favorito)
+        }else {
+            btnFavorito.setImageResource(R.drawable.no_favorito)
+        }
+    }
+
 }
