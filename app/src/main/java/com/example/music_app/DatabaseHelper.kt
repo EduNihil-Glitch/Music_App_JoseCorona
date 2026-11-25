@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.example.music_app.model.AlbumFavorito
 
 class DatabaseHelper(context : Context) : SQLiteOpenHelper(
 
@@ -166,6 +167,58 @@ class DatabaseHelper(context : Context) : SQLiteOpenHelper(
         cursor.close()
 
         return existe 
+
+    }
+
+    //Metodo para consultar toda la información del API
+    fun obtenerAlbumesFavoritos() : List<AlbumFavorito>{
+
+        //Crear lista
+        val listaFavoritos = mutableListOf<AlbumFavorito>()
+        val db = readableDatabase
+
+        val query_sql ="""
+            
+            SELECT 
+                $COL_ID_ALBUM,
+                $COL_NOMBRE_ALBUM,
+                $COL_ARTISTA,
+                $COL_GENERO,
+                $COL_CANCIONES,
+                $COL_IMAGEN
+            FROM $TABLE_FAVORITOS
+            ORDER BY $COL_ID_FAVORITO DESC
+        """.trimIndent()
+
+        //Crear un cursor para acceder a la información
+        val cursor = db.rawQuery(query_sql, null)
+
+        //verificar si hubo resultados
+        if(cursor.moveToFirst()){
+
+            //ciclo para recorrer la informacion
+            do {
+
+                val album = AlbumFavorito(
+
+                    albumId = cursor.getLong(0),
+                    nombreAlbum = cursor.getString(1) ?: "Album desconocido",
+                    artista = cursor.getString(2) ?: "Artista desconocido",
+                    genero = cursor.getString(3) ?: "Sin genero",
+                    canciones = cursor.getInt(4),
+                    imagen = cursor.getString(5) ?: ""
+
+                )
+
+                //guardar variable como un elemento mas de la lista
+                listaFavoritos.add(album)
+
+            }while (cursor.moveToNext())
+
+        }
+
+        cursor.close()
+        return listaFavoritos
 
     }
 
