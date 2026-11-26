@@ -1,5 +1,9 @@
 package com.example.music_app
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -7,11 +11,24 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 
 class DetailsActivity : AppCompatActivity() {
+    companion object{
+
+        //Datos de la notificación
+        private const val CANAL_ID = "canal_general"
+        private const val NOTIFICACION_ID = 1
+        private const val CODIGO_PERMISO = 100
+
+
+    }
     private lateinit var imgPortadaDetalle : ImageView
     private lateinit var tvNombreAlbumDetalle : TextView
     private lateinit var tvArtistaAlbumDetalle : TextView
@@ -35,6 +52,8 @@ class DetailsActivity : AppCompatActivity() {
         dbHelper = DatabaseHelper(this)
 
         mostrarInformacionAlbum()
+
+        crearCanalNoti()
 
     }
 
@@ -87,6 +106,7 @@ class DetailsActivity : AppCompatActivity() {
                 if(guardado){
                     albumFavorito = !albumFavorito
                     Toast.makeText(this, "Album $nombreAlbum agregado a favoritos", Toast.LENGTH_SHORT).show()
+                    mostrarNoti()
                 }
 
             }
@@ -101,6 +121,68 @@ class DetailsActivity : AppCompatActivity() {
         }else {
             btnFavorito.setImageResource(R.drawable.no_favorito)
         }
+    }
+
+    //1. METODO PARA  CREAR EL CANAL DE NOTIFICACION Y VER LOS PERMISOS
+    private fun crearCanalNoti(){
+
+        //Verificar la version de android del dispositivo
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+
+            val canal = NotificationChannel(
+                CANAL_ID,
+                "Notificaciones generales",
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+
+            canal.description = "Canal de notificaciones de MusicApp"
+
+            val adminNotificacion = getSystemService(NotificationManager::class.java)
+
+            adminNotificacion.createNotificationChannel(canal)
+
+        }
+
+    }
+
+    //Metodo para construir el canal
+    private fun mostrarNoti() {
+
+        //validar la version del dispositivo
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+            ) {
+
+            //PEDIR PERMISO AL USUARIO NUEVAMENTE
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                CODIGO_PERMISO
+            )
+
+            Toast.makeText(this, "Autoriza el permiso y vuelve a intentar", Toast.LENGTH_SHORT).show()
+
+            return
+
+        }
+
+        //configurar la notificacion
+        val notificacion = NotificationCompat.Builder(this,CANAL_ID)
+            .setSmallIcon(R.drawable.correo)
+            .setContentTitle("MusicApp")
+            .setContentText("Un album fue guardado en la base de datos")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .build()
+
+        //mandar la notificacion
+        NotificationManagerCompat
+            .from(this)
+            .notify(NOTIFICACION_ID, notificacion)
+
     }
 
 }
